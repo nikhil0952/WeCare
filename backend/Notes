@@ -1,0 +1,6 @@
+Middleware : Middleware in web development is like a filter for requests. It intercepts incoming requests, performs some actions (like logging, authentication, or data parsing), and then passes the request along to the next step in the process. It's a way to add extra functionality to your application's request-handling pipeline.
+
+
+
+In cookie , httpOnly : true -> 
+The httpOnly flag in cookies is a security feature that can be set by servers to restrict access to cookies. When a cookie is marked as httpOnly, it means that the cookie is inaccessible to JavaScript running in the browser. It can only be accessed and modified by the server, and it's not exposed to client-side scripting vulnerabilities such as cross-site scripting (XSS) attacks.
