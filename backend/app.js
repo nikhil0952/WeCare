@@ -6,7 +6,7 @@ import fileUpload from "express-fileupload";
 import { dbconnect } from "./database/dbconnect.js";
 import messageRouter from "./router/messageRouter.js";
 import registerRouter from "./router/registerRouter.js";
-
+import appointmentRouter from "./router/appointmentRouter.js"
 //----------------------------------------------------//
 
 config({path: "./config/config.env"});// loads variables store in .env file to process.env 
@@ -38,6 +38,7 @@ app.use(fileUpload({
 //----------------------------------------------------//
 app.use("/api/v1", messageRouter);
 app.use("/api/v1",registerRouter);
+app.use("/api/v1",appointmentRouter)
 
 
 dbconnect();

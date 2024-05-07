@@ -49,7 +49,8 @@ export const registerPatient = async (req, res, next) => {
         // Creating jwt token and insert into cookie
         const jwttoken = jwt.sign(
             {
-                id: userData._id
+                id: userData._id,email
+
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -127,7 +128,7 @@ export const login = async (req, res, next) => {
 
         // creating jwt and adding to cookie
         const jwtToken = jwt.sign(
-            { id: userData._id},
+            { id: userData._id,email},
             process.env.JWT_SECRET_KEY,
             {
                 expiresIn: process.env.JWT_EXPIRES
@@ -143,7 +144,8 @@ export const login = async (req, res, next) => {
             httpOnly: true,
         }).json({
             success: true,
-            message: "Successfully logined!!"
+            message: "Successfully logined!!",
+            cookieName 
         })
 
     } catch (error) {
@@ -233,10 +235,10 @@ export const registerDoctor = async (req, res, next) => {
     try {
         console.log("enetered!!!!");
         // Desturcturing
-        const { firstName, lastName, email, phone, dob, gender, nationality, role, password } = req.body;
+        const { firstName, lastName, email, phone, dob, gender, nationality, role, password, doctorDepartment} = req.body;
 
         // check all values are present
-        if (!firstName || !lastName || !email || !phone || !dob || !gender || !nationality || !role || !password) {
+        if (!firstName || !lastName || !email || !phone || !dob || !gender || !nationality || !role || !password || !doctorDepartment) {
             return res.status(400).json({
                 success: false,
                 message: "Missing Entered values!"
@@ -263,7 +265,8 @@ export const registerDoctor = async (req, res, next) => {
             gender,
             nationality,
             role: "Doctor",
-            password: hashPassword
+            password: hashPassword,
+            doctorDepartment
         });
 
 

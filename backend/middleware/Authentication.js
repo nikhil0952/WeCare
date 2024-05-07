@@ -1,8 +1,8 @@
 import { User } from "../models/userSchema.js";
 import jwt from "jsonwebtoken";
-import { User } from "../models/userSchema.js";
 
-const adminAuthentication = async (req, res, next) => {
+
+export const adminAuthentication = async (req, res, next) => {
 
 
     try {
@@ -35,15 +35,20 @@ const adminAuthentication = async (req, res, next) => {
 
 }
 
-const patientAuthentication = async (req, res, next) => {
+export const patientAuthentication = async (req, res, next) => {
 
 
     try {
         // fetch jwt from req cookies
         const jwtToken = req.cookies.patientJWT;
-        const verifyJWT = jwt.verify(jwtToken, process.env.JWT_SECRET_KEY);
+        const verifyJWT = await jwt.verify(jwtToken, process.env.JWT_SECRET_KEY);
+        
+        const email = verifyJWT.email;
+        
 
-        const patientData = await User.findOne({_id : verifyJWT._id});
+        const patientData = await User.findOne({email});
+        
+        
         if(!patientData){
             return res.status(500).json({
                 success: false,
@@ -56,7 +61,7 @@ const patientAuthentication = async (req, res, next) => {
                 message: "role donot match!!"
             })
         }
-
+        req.user = patientData;
         next();
     } catch (error) {
         return res.status(500).json({
