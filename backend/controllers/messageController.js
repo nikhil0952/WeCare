@@ -23,3 +23,19 @@ export const messageSend = async(req, res , next)=>{
     })
 
 }
+
+export const getAllMessages = async(req, res, next)=>{
+    try{
+        const data = await Message.find();
+        return res.status(200).json({
+            success: true,
+            message: "Successfully fetch messages",
+            data
+        })
+    }catch(error){
+        return res.send(500).json({
+            success:false,
+            message : error
+        })
+    }
+}

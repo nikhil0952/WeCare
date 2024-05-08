@@ -312,10 +312,18 @@ export const getUserDetails = async(req, res, next)=>{
     })
 }
 
+// returning admin details
+export const getAdminDetails = async(req, res, next)=>{
+    const userData = req.user;
+    return res.status(200).json({
+        success: true,
+        userData
+    })
+}
+
 // logout for admin
 export const logoutAdmin = async(req, res, next)=>{
     try{
-
         return res.status(201).cookie(
             "adminJWT" , "", {
                 httpOnly: true,

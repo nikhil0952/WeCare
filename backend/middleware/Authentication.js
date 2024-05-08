@@ -8,9 +8,11 @@ export const adminAuthentication = async (req, res, next) => {
     try {
         // fetch jwt from req cookies
         const jwtToken = req.cookies.adminJWT;
-        const verifyJWT = jwt.verify(jwtToken, process.env.JWT_SECRET_KEY);
+        const verifyJWT = await jwt.verify(jwtToken, process.env.JWT_SECRET_KEY);
 
-        const adminData = await User.findOne({_id : verifyJWT._id});
+        const email = verifyJWT.email;
+
+        const adminData = await User.findOne({email});
         if(!adminData){
             return res.status(500).json({
                 success: false,
@@ -23,7 +25,7 @@ export const adminAuthentication = async (req, res, next) => {
                 message: "role donot match!!"
             })
         }
-
+        req.user = adminData;
         next();
     } catch (error) {
         return res.status(500).json({
