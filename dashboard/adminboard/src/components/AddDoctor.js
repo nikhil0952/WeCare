@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-
+import axios from "axios";
+import { toast } from "react-toastify";
 
 
 const AddDoctor = () => {
@@ -13,6 +14,8 @@ const AddDoctor = () => {
     const [nationality, setNationality] = useState();
     const [dob, setDob] = useState();
     const [gender, setGender] = useState();
+    const [doctorDepartment, setDoctorDepartment] = useState();
+    const [docAvatar, setDocAvatar] = useState();
     const departmentsArray = [
         "Pediatrics",
         "Orthopedics",
@@ -24,6 +27,67 @@ const AddDoctor = () => {
         "Dermatology",
         "ENT",
     ];
+    const handleAvatar = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setDocAvatar(file);
+        };
+      };// to create a image in file
+    const formSubmit = async (event) => {
+        event.preventDefault();
+        console.log(firstName, lastName, email, phone, dob, gender, nationality, password, doctorDepartment, docAvatar);
+
+        try {
+            
+            const formData = new FormData();
+            formData.append("firstName", firstName);
+            formData.append("lastName", lastName);
+            formData.append("email", email);
+            formData.append("phone", phone);
+            formData.append("dob", dob);
+            formData.append("gender", gender);
+            formData.append("nationality", nationality);
+            formData.append("password", password);
+            formData.append("doctorDepartment", doctorDepartment);
+            formData.append("docAvatar", docAvatar);
+            console.log(formData);
+            await axios.post(
+                "http://localhost:4000/api/v1/doctor/register",
+                formData
+                ,
+                {
+                    withCredentials: true,
+                    headers: {
+                        headers: { "Content-Type": "multipart/form-data" },//to send form
+                    }
+                }
+            ).then(
+                res => {
+                    navigate("/dashboard/show/doctors");
+                    toast.success("Successfully added!")
+                    console.log(res);
+                    
+                    setEmail("");
+                    setFirstname("");
+                    setLastname("");
+                    setDocAvatar("");
+                    setDoctorDepartment("");
+                    setGender("");
+                    setPhone("");
+                    setDob("");
+                    setNationality("");
+                    setPassword("");
+                }
+            ).catch(error => {
+                console.log(error);
+            })
+        }catch(error){
+            console.log(error);
+        }
+    }
+
     return (
         <>
             <div className="text-black h-[100%] overflow-scroll p-5 bg-black">
@@ -35,7 +99,7 @@ const AddDoctor = () => {
 
                         <div className=" w-[100%] flex justify-center  h-[80%]">
                             <form
-                                // onSubmit={formSubmit}
+                                onSubmit={formSubmit}
                                 className="flex w-[80%] flex-col justify-around items-center"
                             >
 
@@ -140,7 +204,8 @@ const AddDoctor = () => {
                                 <div className="flex w-[100%]">
                                     <div className="w-[100%] mr-5">
                                         <select className=" pl-3 text border w-full h-[3rem] rounded"
-
+                                            onChange={(event) => { setDoctorDepartment(event.target.value) }}
+                                            value={doctorDepartment}
                                         >
                                             <option value="">
                                                 Select Department
@@ -160,10 +225,9 @@ const AddDoctor = () => {
                                         <input
 
                                             type="file"
-                                            placeholder="LastName"
-                                            required
-                                            onChange={(event) => { setLastname(event.target.value) }}
-                                            value={lastName}
+                                            onChange={handleAvatar}
+                                            // onChange={(event) => { setDocAvatar(event.target.value) }}
+                                            // value={docAvatar}
 
                                         />
                                     </div>

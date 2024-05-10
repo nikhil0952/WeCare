@@ -3,3 +3,15 @@ body{
   padding: 0;
   box-sizing: border-box;
 }
+.avatar-container {
+  width: 15rem; /* Adjust as needed */
+  height: 15rem; /* Adjust as needed */
+  overflow: hidden;
+  border-radius: 50%; /* Makes it circular */
+}
+
+.avatar {
+  width: 100%; /* Ensures the image fills the container */
+  height: auto; /* Maintains aspect ratio */
+  
+}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-
+import axios from "axios";
+import { toast } from "react-toastify";
 
 
 const AddAdmin = () => {
@@ -13,6 +14,34 @@ const AddAdmin = () => {
     const [nationality, setNationality] = useState();
     const [dob, setDob] = useState();
     const [gender, setGender] = useState();
+
+    const formSubmit = async(event)=>{
+        event.preventDefault();
+        console.log(firstName, lastName, email, phone, dob, gender, nationality, password);
+
+        try{
+            await axios.post(
+                "http://localhost:4000/api/v1/admin/register",
+                {
+                    firstName, lastName, email, phone, dob, gender, nationality,role:"Admin", password
+                },
+                {
+                    withCredentials:true,
+                    headers:{
+                        "Content-Type": "application/json",
+                    }
+                }
+            ).then(res=>{
+                toast.success("Succesfully Registered!")
+                console.log(res);
+            }).catch(error =>{
+                toast.error(error.response.data.message)
+                console.log(error);
+            })
+        }catch(error){
+            console.log(error);
+        }
+    }
     
     return (
         <>
@@ -25,7 +54,7 @@ const AddAdmin = () => {
 
                         <div className=" w-[100%] flex justify-center  h-[80%]">
                             <form
-                                // onSubmit={formSubmit}
+                                onSubmit={formSubmit}
                                 className="flex w-[80%] flex-col justify-around items-center"
                             >
 

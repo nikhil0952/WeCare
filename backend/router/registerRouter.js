@@ -21,7 +21,7 @@ router.get("/patient/details",patientAuthentication,getUserDetails);
 router.get("/admin/details",adminAuthentication ,getAdminDetails);
 
 // getting all doctors
-router.get("/doctors",patientAuthentication,getAllDoctors);
+router.get("/doctors",getAllDoctors);
 
 // logout 
 router.get("/patient/logout",patientAuthentication,logoutPatient);

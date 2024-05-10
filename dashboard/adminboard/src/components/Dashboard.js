@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router";
 import Messages from "./Messages";
 import AddDoctor from "./AddDoctor";
 import AddAdmin from "./AddAdmin";
+import AllDoctors from "./AllDoctors.js";
 
 const Dashboard = () => {
     return (
@@ -17,7 +18,7 @@ const Dashboard = () => {
                         <Route path='/admin/messages' element={<Messages />} />
                         <Route path='/add/doctor' element={<AddDoctor/>} />
                         <Route path='/add/admin' element={<AddAdmin/>} />
-
+                        <Route path='/show/doctors' element={<AllDoctors/>} />
                     </Routes>
                 </div>
 

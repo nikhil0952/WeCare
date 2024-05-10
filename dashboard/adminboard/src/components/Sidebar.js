@@ -38,8 +38,8 @@ const Sidebar = () => {
         <>
             <div className=" text-5xl w-[5%] items-center text-[white] flex flex-col justify-around h-[60%]">
                 <TiHome />
-                <FaUserDoctor onClick={() => { navigate("/dashboard/add/doctor") }} />
-                <MdAddModerator />
+                <FaUserDoctor onClick={() => { navigate("/dashboard/show/doctors")} } />
+                <MdAddModerator onClick={() => { navigate("/dashboard/add/doctor") }}  />
                 <IoPersonAddSharp onClick={() => { navigate("/dashboard/add/admin") }} />
 
                 <AiFillMessage onClick={() => { navigate("/dashboard/admin/messages") }} />

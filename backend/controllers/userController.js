@@ -3,6 +3,8 @@ import { User } from "../models/userSchema.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { messageSend } from "./messageController.js";
+import cloudinary from "cloudinary"
+
 
 
 export const registerPatient = async (req, res, next) => {
@@ -44,12 +46,12 @@ export const registerPatient = async (req, res, next) => {
         });
 
         // storing data in a variable userData
-        const userData = await User.findOne({email});
+        const userData = await User.findOne({ email });
 
         // Creating jwt token and insert into cookie
         const jwttoken = jwt.sign(
             {
-                id: userData._id,email
+                id: userData._id, email
 
             },
             process.env.JWT_SECRET_KEY,
@@ -128,7 +130,7 @@ export const login = async (req, res, next) => {
 
         // creating jwt and adding to cookie
         const jwtToken = jwt.sign(
-            { id: userData._id,email},
+            { id: userData._id, email },
             process.env.JWT_SECRET_KEY,
             {
                 expiresIn: process.env.JWT_EXPIRES
@@ -145,7 +147,7 @@ export const login = async (req, res, next) => {
         }).json({
             success: true,
             message: "Successfully logined!!",
-            cookieName 
+            cookieName
         })
 
     } catch (error) {
@@ -195,8 +197,8 @@ export const registerAdmin = async (req, res, next) => {
         });
 
         // fetching data and storing in a variable adminData
-        const adminData = await User.findOne({email});
-        
+        const adminData = await User.findOne({ email });
+
         // Creating jwt token and insert into cookie
         const jwttoken = jwt.sign(
             {
@@ -204,7 +206,7 @@ export const registerAdmin = async (req, res, next) => {
             },
             process.env.JWT_SECRET_KEY,
             {
-               
+
                 expiresIn: process.env.JWT_EXPIRES
             }
         )
@@ -234,11 +236,29 @@ export const registerDoctor = async (req, res, next) => {
 
     try {
         console.log("enetered!!!!");
+        console.log(req.files);
+        if (!req.files) {
+            return res.status(500).json({
+                success: false,
+                message: "Doctor avtar file not recieved!"
+            })
+        }
+        
+        const { docAvatar } = req.files;
+        const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+        if (!allowedFormats.includes(docAvatar.mimetype)) {
+            return res.status(500).json({
+                success: false,
+                message: "File Format Not Supported!"
+            })
+        };
+        console.log(docAvatar);
+
         // Desturcturing
-        const { firstName, lastName, email, phone, dob, gender, nationality, role, password, doctorDepartment} = req.body;
+        const { firstName, lastName, email, phone, dob, gender, nationality, password, doctorDepartment } = req.body;
 
         // check all values are present
-        if (!firstName || !lastName || !email || !phone || !dob || !gender || !nationality || !role || !password || !doctorDepartment) {
+        if (!firstName || !lastName || !email || !phone || !dob || !gender || !nationality || !password || !doctorDepartment || !docAvatar) {
             return res.status(400).json({
                 success: false,
                 message: "Missing Entered values!"
@@ -253,10 +273,25 @@ export const registerDoctor = async (req, res, next) => {
             })
         }
 
+        const cloudinaryResponse = await cloudinary.uploader.upload(
+            docAvatar.tempFilePath
+        );
+        if (!cloudinaryResponse || cloudinaryResponse.error) {
+            console.error(
+                "Cloudinary Error:",
+                cloudinaryResponse.error || "Unknown Cloudinary error"
+            );
+            return res.status(400).json({
+                success: false,
+                message: "Failed To Upload Doctor Avatar To Cloudinary"
+            })
+            
+        }
+
         // hash the password 
         const hashPassword = await bcrypt.hash(password, 10);
 
-        await User.create({
+        const doctor = await User.create({
             firstName,
             lastName,
             email,
@@ -266,9 +301,14 @@ export const registerDoctor = async (req, res, next) => {
             nationality,
             role: "Doctor",
             password: hashPassword,
-            doctorDepartment
+            doctorDepartment,
+            docAvatar: {
+                public_id: cloudinaryResponse.public_id,
+                url: cloudinaryResponse.secure_url,
+              },
         });
 
+        console.log(doctor);
 
 
         // adding jwt to cookie with res
@@ -281,21 +321,22 @@ export const registerDoctor = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error
+            message: "error occurs !!!",
+            error
         })
     }
 
 }
 
 // function to get all doctors details from database
-export const getAllDoctors = async(req, res, next)=>{
-    try{
-        const doctors = await User.find({role: "Doctor"});
+export const getAllDoctors = async (req, res, next) => {
+    try {
+        const doctors = await User.find({ role: "Doctor" });
         return res.status(200).json({
             success: true,
             doctors,
         })
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
             success: false,
             message: error
@@ -304,7 +345,7 @@ export const getAllDoctors = async(req, res, next)=>{
 }
 
 // returning user details
-export const getUserDetails = async(req, res, next)=>{
+export const getUserDetails = async (req, res, next) => {
     const userData = req.user;
     return res.status(200).json({
         success: true,
@@ -313,7 +354,7 @@ export const getUserDetails = async(req, res, next)=>{
 }
 
 // returning admin details
-export const getAdminDetails = async(req, res, next)=>{
+export const getAdminDetails = async (req, res, next) => {
     const userData = req.user;
     return res.status(200).json({
         success: true,
@@ -322,19 +363,19 @@ export const getAdminDetails = async(req, res, next)=>{
 }
 
 // logout for admin
-export const logoutAdmin = async(req, res, next)=>{
-    try{
+export const logoutAdmin = async (req, res, next) => {
+    try {
         return res.status(201).cookie(
-            "adminJWT" , "", {
-                httpOnly: true,
-                expires: new Date(Date.now())
-            }
+            "adminJWT", "", {
+            httpOnly: true,
+            expires: new Date(Date.now())
+        }
         ).json({
             success: true,
-            message : "Successfully logout from admin"
+            message: "Successfully logout from admin"
         })
 
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
             success: false,
             message: error
@@ -343,20 +384,20 @@ export const logoutAdmin = async(req, res, next)=>{
 }
 
 // logout for patient
-export const logoutPatient = async(req, res, next)=>{
-    try{
+export const logoutPatient = async (req, res, next) => {
+    try {
 
         return res.status(201).cookie(
-            "patientJWT" , "", {
-                httpOnly: true,
-                expires: new Date(Date.now())
-            }
+            "patientJWT", "", {
+            httpOnly: true,
+            expires: new Date(Date.now())
+        }
         ).json({
             success: true,
-            message : "Successfully logout from Patient!!!"
+            message: "Successfully logout from Patient!!!"
         })
 
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
             success: false,
             message: error
